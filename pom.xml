@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Project Coordinates -->
+    <groupId>com.mobile.automation</groupId>
+    <artifactId>mobile-automation-framework</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <!-- Project Metadata -->
+    <name>Mobile Automation Framework</name>
+    <description>Production-ready Mobile Automation Framework using Appium, Java, TestNG and Maven</description>
+    <url>https://github.com/yourusername/mobile-automation-framework</url>
+
+    <!-- Properties - Centralized version management -->
+    <properties>
+        <!-- Java and Encoding Configuration -->
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Dependency Versions - Latest stable versions as of 2025 -->
+        <appium.version>9.3.0</appium.version>
+        <selenium.version>4.25.0</selenium.version>
+        <testng.version>7.10.2</testng.version>
+        <extentreports.version>5.1.2</extentreports.version>
+        <log4j.version>2.24.1</log4j.version>
+        <json.simple.version>1.1.1</json.simple.version>
+        <commons.io.version>2.17.0</commons.io.version>
+        <slf4j.version>2.0.16</slf4j.version>
+
+        <!-- Maven Plugin Versions -->
+        <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+        <maven.surefire.plugin.version>3.5.1</maven.surefire.plugin.version>
+        <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
+    </properties>
+
+    <!-- Dependencies -->
+    <dependencies>
+        <!-- Appium Java Client - Core mobile automation library -->
+        <dependency>
+            <groupId>io.appium</groupId>
+            <artifactId>java-client</artifactId>
+            <version>${appium.version}</version>
+        </dependency>
+
+        <!-- Selenium WebDriver - Browser automation support -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+
+        <!-- TestNG - Testing framework for test execution and assertions -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+        </dependency>
+
+        <!-- ExtentReports - Advanced HTML reporting -->
+        <dependency>
+            <groupId>com.aventstack</groupId>
+            <artifactId>extentreports</artifactId>
+            <version>${extentreports.version}</version>
+        </dependency>
+
+        <!-- Log4j Core - Logging framework -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <!-- Log4j API - Logging API -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <!-- SLF4J to Log4j Bridge - Redirect SLF4J logs to Log4j -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <!-- JSON Simple - JSON parsing for test data -->
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>${json.simple.version}</version>
+        </dependency>
+
+        <!-- Apache Commons IO - File operations utility -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
+        </dependency>
+    </dependencies>
+
+    <!-- Build Configuration -->
+    <build>
+        <plugins>
+            <!-- Maven Compiler Plugin - Compiles Java source code -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Surefire Plugin - Executes tests during the build -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <!-- TestNG suite XML file location -->
+                    <suiteXmlFiles>
+                        <suiteXmlFile>testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <!-- Parallel execution configuration -->
+                    <parallel>methods</parallel>
+                    <threadCount>3</threadCount>
+                    <!-- Test failure behavior -->
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <!-- Include test output in reports -->
+                    <trimStackTrace>false</trimStackTrace>
+                    <!-- System properties for runtime configuration -->
+                    <systemPropertyVariables>
+                        <platform>${platform}</platform>
+                        <deviceName>${deviceName}</deviceName>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Resources Plugin - Handles resource copying -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven.resources.plugin.version}</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <!-- Resource directories -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+    </build>
+
+    <!-- Profiles for different execution environments -->
+    <profiles>
+        <!-- Android Profile -->
+        <profile>
+            <id>android</id>
+            <properties>
+                <platform>android</platform>
+            </properties>
+        </profile>
+
+        <!-- iOS Profile -->
+        <profile>
+            <id>ios</id>
+            <properties>
+                <platform>ios</platform>
+            </properties>
+        </profile>
+
+        <!-- CI/CD Profile -->
+        <profile>
+            <id>ci</id>
+            <properties>
+                <parallel>methods</parallel>
+                <threadCount>5</threadCount>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

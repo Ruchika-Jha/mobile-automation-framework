@@ -1,0 +1,36 @@
+[
+  {
+    "testCase": "Valid Login",
+    "username": "testuser@example.com",
+    "password": "Test@123",
+    "expectedResult": "success"
+  },
+  {
+    "testCase": "Invalid Username",
+    "username": "invalid@example.com",
+    "password": "Test@123",
+    "expectedResult": "failure",
+    "expectedError": "Invalid credentials"
+  },
+  {
+    "testCase": "Invalid Password",
+    "username": "testuser@example.com",
+    "password": "wrongpassword",
+    "expectedResult": "failure",
+    "expectedError": "Invalid credentials"
+  },
+  {
+    "testCase": "Empty Username",
+    "username": "",
+    "password": "Test@123",
+    "expectedResult": "failure",
+    "expectedError": "Username is required"
+  },
+  {
+    "testCase": "Empty Password",
+    "username": "testuser@example.com",
+    "password": "",
+    "expectedResult": "failure",
+    "expectedError": "Password is required"
+  }
+]

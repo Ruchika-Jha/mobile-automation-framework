@@ -1,0 +1,221 @@
+# ==========================================
+# Mobile Automation Framework .gitignore
+# ==========================================
+
+# ==========================================
+# Maven / Java
+# ==========================================
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ==========================================
+# Java Compiled Files
+# ==========================================
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# ==========================================
+# Logs
+# ==========================================
+logs/
+*.log
+log4j*.xml.bak
+appium.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# Test Reports and Results
+# ==========================================
+reports/
+test-output/
+target/surefire-reports/
+target/failsafe-reports/
+screenshots/
+*.html
+*.xml
+!pom.xml
+!testng.xml
+!log4j2.xml
+!azure-pipelines.yml
+
+# ==========================================
+# IDE Files
+# ==========================================
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# Eclipse
+.project
+.classpath
+.settings/
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+.recommenders
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# VS Code
+.vscode/
+*.code-workspace
+.history/
+
+# ==========================================
+# Operating System Files
+# ==========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ==========================================
+# Mobile App Files (if storing apps)
+# ==========================================
+*.apk
+*.aab
+*.ipa
+*.app
+*.dSYM.zip
+*.dSYM
+
+# ==========================================
+# Node Modules (for Appium dependencies)
+# ==========================================
+node_modules/
+package-lock.json
+yarn.lock
+
+# ==========================================
+# Appium
+# ==========================================
+.appium/
+appium-doctor.log
+
+# ==========================================
+# Security and Secrets
+# ==========================================
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+.env
+.env.local
+.env.*.local
+credentials.json
+secrets.properties
+
+# ==========================================
+# Temporary Files
+# ==========================================
+*.temp
+*.tmp
+*~
+*.pid
+*.seed
+*.pid.lock
+
+# ==========================================
+# Coverage Reports
+# ==========================================
+coverage/
+*.lcov
+.nyc_output
+
+# ==========================================
+# Database Files
+# ==========================================
+*.db
+*.sqlite
+*.sqlite3
+
+# ==========================================
+# Backup Files
+# ==========================================
+*.bak
+*.backup
+*.old
+*.orig
+
+# ==========================================
+# Documentation Build Files
+# ==========================================
+docs/_build/
+site/
+
+# ==========================================
+# Custom Configuration (keep template)
+# ==========================================
+# Uncomment if you want to ignore local config overrides
+# config.local.properties
+# testng.local.xml

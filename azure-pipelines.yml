@@ -1,0 +1,320 @@
+# Azure DevOps Pipeline Configuration
+# Mobile Automation Framework CI/CD Pipeline
+
+# Pipeline Trigger Configuration
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - feature/*
+  paths:
+    exclude:
+      - README.md
+      - CONTRIBUTING.md
+      - docs/*
+
+# Pull Request Trigger
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+# Pipeline Variables
+variables:
+  # Maven Configuration
+  mavenPomFile: 'pom.xml'
+  mavenOptions: '-DskipTests=false'
+
+  # Java Configuration
+  jdkVersion: '1.11'
+
+  # Test Configuration
+  platform: 'android'
+  threadCount: '3'
+
+  # Appium Configuration
+  appiumVersion: '2.0.0'
+
+# Build Agent Configuration
+pool:
+  vmImage: 'macOS-latest'  # Use macOS for both Android and iOS testing
+
+# Pipeline Stages
+stages:
+
+# ==========================================
+# Stage 1: Build and Validate
+# ==========================================
+- stage: Build
+  displayName: 'Build and Validate'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Framework'
+    steps:
+
+    # Checkout source code
+    - checkout: self
+      displayName: 'Checkout Repository'
+
+    # Setup Java
+    - task: JavaToolInstaller@0
+      displayName: 'Install Java JDK $(jdkVersion)'
+      inputs:
+        versionSpec: '$(jdkVersion)'
+        jdkArchitectureOption: 'x64'
+        jdkSourceOption: 'PreInstalled'
+
+    # Display Java Version
+    - script: |
+        java -version
+        echo "JAVA_HOME: $JAVA_HOME"
+      displayName: 'Verify Java Installation'
+
+    # Maven Cache
+    - task: Cache@2
+      displayName: 'Cache Maven Dependencies'
+      inputs:
+        key: 'maven | "$(Agent.OS)" | **/pom.xml'
+        restoreKeys: |
+          maven | "$(Agent.OS)"
+          maven
+        path: $(MAVEN_CACHE_FOLDER)
+
+    # Maven Build
+    - task: Maven@3
+      displayName: 'Maven Clean Install'
+      inputs:
+        mavenPomFile: '$(mavenPomFile)'
+        goals: 'clean install'
+        options: '-DskipTests=true'
+        publishJUnitResults: false
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '$(jdkVersion)'
+        mavenVersionOption: 'Default'
+
+    # Verify Build
+    - script: |
+        echo "Build completed successfully"
+        ls -la target/
+      displayName: 'Verify Build Output'
+
+# ==========================================
+# Stage 2: Android Tests
+# ==========================================
+- stage: AndroidTests
+  displayName: 'Android Test Execution'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: AndroidTestJob
+    displayName: 'Run Android Tests'
+    steps:
+
+    # Checkout code
+    - checkout: self
+
+    # Setup Java
+    - task: JavaToolInstaller@0
+      displayName: 'Install Java JDK'
+      inputs:
+        versionSpec: '$(jdkVersion)'
+        jdkArchitectureOption: 'x64'
+        jdkSourceOption: 'PreInstalled'
+
+    # Install Node.js (for Appium)
+    - task: NodeTool@0
+      displayName: 'Install Node.js'
+      inputs:
+        versionSpec: '18.x'
+
+    # Install Appium
+    - script: |
+        npm install -g appium@$(appiumVersion)
+        appium driver install uiautomator2
+        appium --version
+      displayName: 'Install Appium and UiAutomator2 Driver'
+
+    # Setup Android SDK (if not pre-installed)
+    - script: |
+        echo "Android SDK setup"
+        echo "ANDROID_HOME: $ANDROID_HOME"
+      displayName: 'Verify Android SDK'
+
+    # Start Appium Server
+    - script: |
+        appium --log-level info > appium.log 2>&1 &
+        echo "Appium server started"
+        sleep 10
+      displayName: 'Start Appium Server'
+
+    # Run Android Tests
+    - task: Maven@3
+      displayName: 'Execute Android Tests'
+      inputs:
+        mavenPomFile: '$(mavenPomFile)'
+        goals: 'test'
+        options: '-Dplatform=android -DthreadCount=$(threadCount)'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        testRunTitle: 'Android Test Results'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '$(jdkVersion)'
+        mavenVersionOption: 'Default'
+      continueOnError: true
+
+    # Stop Appium Server
+    - script: |
+        pkill -f appium || true
+        echo "Appium server stopped"
+      displayName: 'Stop Appium Server'
+      condition: always()
+
+    # Publish Test Reports
+    - task: PublishTestResults@2
+      displayName: 'Publish Android Test Results'
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        testRunTitle: 'Android Tests'
+        failTaskOnFailedTests: false
+      condition: always()
+
+    # Publish ExtentReports
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Extent Reports'
+      inputs:
+        PathtoPublish: 'reports'
+        ArtifactName: 'Android-Test-Reports'
+        publishLocation: 'Container'
+      condition: always()
+
+    # Publish Screenshots
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Screenshots'
+      inputs:
+        PathtoPublish: 'reports/screenshots'
+        ArtifactName: 'Android-Screenshots'
+        publishLocation: 'Container'
+      condition: always()
+
+    # Publish Logs
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Logs'
+      inputs:
+        PathtoPublish: 'logs'
+        ArtifactName: 'Android-Logs'
+        publishLocation: 'Container'
+      condition: always()
+
+# ==========================================
+# Stage 3: iOS Tests (Optional)
+# ==========================================
+- stage: iOSTests
+  displayName: 'iOS Test Execution'
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['RuniOSTests'], 'true'))
+  jobs:
+  - job: iOSTestJob
+    displayName: 'Run iOS Tests'
+    steps:
+
+    # Checkout code
+    - checkout: self
+
+    # Setup Java
+    - task: JavaToolInstaller@0
+      displayName: 'Install Java JDK'
+      inputs:
+        versionSpec: '$(jdkVersion)'
+        jdkArchitectureOption: 'x64'
+        jdkSourceOption: 'PreInstalled'
+
+    # Install Node.js
+    - task: NodeTool@0
+      displayName: 'Install Node.js'
+      inputs:
+        versionSpec: '18.x'
+
+    # Install Appium and XCUITest Driver
+    - script: |
+        npm install -g appium@$(appiumVersion)
+        appium driver install xcuitest
+        appium --version
+      displayName: 'Install Appium and XCUITest Driver'
+
+    # Setup Xcode
+    - task: Xcode@5
+      displayName: 'Select Xcode Version'
+      inputs:
+        actions: 'build'
+        xcodeVersion: 'default'
+
+    # Start Appium Server
+    - script: |
+        appium --log-level info > appium.log 2>&1 &
+        echo "Appium server started"
+        sleep 10
+      displayName: 'Start Appium Server'
+
+    # Run iOS Tests
+    - task: Maven@3
+      displayName: 'Execute iOS Tests'
+      inputs:
+        mavenPomFile: '$(mavenPomFile)'
+        goals: 'test'
+        options: '-Dplatform=ios -DthreadCount=$(threadCount)'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        testRunTitle: 'iOS Test Results'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '$(jdkVersion)'
+        mavenVersionOption: 'Default'
+      continueOnError: true
+
+    # Stop Appium Server
+    - script: |
+        pkill -f appium || true
+        echo "Appium server stopped"
+      displayName: 'Stop Appium Server'
+      condition: always()
+
+    # Publish Test Reports
+    - task: PublishTestResults@2
+      displayName: 'Publish iOS Test Results'
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        testRunTitle: 'iOS Tests'
+        failTaskOnFailedTests: false
+      condition: always()
+
+    # Publish Artifacts
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish iOS Test Reports'
+      inputs:
+        PathtoPublish: 'reports'
+        ArtifactName: 'iOS-Test-Reports'
+        publishLocation: 'Container'
+      condition: always()
+
+# ==========================================
+# Stage 4: Test Report Summary
+# ==========================================
+- stage: ReportSummary
+  displayName: 'Generate Test Summary'
+  dependsOn:
+    - AndroidTests
+    - iOSTests
+  condition: always()
+  jobs:
+  - job: SummaryJob
+    displayName: 'Test Summary'
+    steps:
+    - script: |
+        echo "=========================================="
+        echo "Mobile Automation Test Execution Complete"
+        echo "=========================================="
+        echo "Check published artifacts for detailed reports"
+      displayName: 'Display Summary'

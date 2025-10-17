@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+    TestNG Configuration File
+
+    This file defines test suites, parallel execution, and test parameters
+    for the Mobile Automation Framework.
+
+    Features:
+    - Parallel test execution
+    - Platform-specific test configuration
+    - Test grouping and prioritization
+    - Listener configuration
+    - Retry mechanism for flaky tests
+-->
+
+<suite name="Mobile Automation Test Suite" parallel="tests" thread-count="3" verbose="1">
+
+    <!-- Suite-level listeners -->
+    <listeners>
+        <listener class-name="com.mobile.framework.listeners.TestListener"/>
+    </listeners>
+
+    <!-- Android Test Execution -->
+    <test name="Android Tests" parallel="methods" thread-count="2">
+        <parameter name="platform" value="android"/>
+
+        <classes>
+            <!-- Login Tests -->
+            <class name="com.mobile.tests.LoginTest">
+                <methods>
+                    <include name="testValidLogin"/>
+                    <include name="testInvalidLogin"/>
+                    <include name="testEmptyFieldsValidation"/>
+                    <include name="testLoginWithDataProvider"/>
+                    <include name="testForgotPasswordLink"/>
+                    <include name="testLoginPageElements"/>
+                </methods>
+            </class>
+
+            <!-- Navigation Tests -->
+            <class name="com.mobile.tests.NavigationTest">
+                <methods>
+                    <include name="testTabNavigation"/>
+                    <include name="testMenuNavigation"/>
+                    <include name="testProfileNavigation"/>
+                    <include name="testSearchNavigation"/>
+                    <include name="testNotificationNavigation"/>
+                    <include name="testLogoutNavigation"/>
+                    <include name="testDeepNavigation"/>
+                    <include name="testHomePageLoaded"/>
+                </methods>
+            </class>
+
+            <!-- Form Tests -->
+            <class name="com.mobile.tests.FormTest">
+                <methods>
+                    <include name="testValidFormSubmission"/>
+                    <include name="testFormFieldValidation"/>
+                    <include name="testEmailValidation"/>
+                    <include name="testFormWithDataProvider"/>
+                    <include name="testFormCancel"/>
+                    <include name="testFormFieldsDisplayed"/>
+                    <include name="testCheckboxFunctionality"/>
+                    <include name="testMinimumRequiredFields"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <!-- iOS Test Execution -->
+    <test name="iOS Tests" parallel="methods" thread-count="2" enabled="false">
+        <parameter name="platform" value="ios"/>
+
+        <classes>
+            <!-- Login Tests -->
+            <class name="com.mobile.tests.LoginTest">
+                <methods>
+                    <include name="testValidLogin"/>
+                    <include name="testInvalidLogin"/>
+                    <include name="testEmptyFieldsValidation"/>
+                    <include name="testLoginWithDataProvider"/>
+                    <include name="testForgotPasswordLink"/>
+                    <include name="testLoginPageElements"/>
+                </methods>
+            </class>
+
+            <!-- Navigation Tests -->
+            <class name="com.mobile.tests.NavigationTest">
+                <methods>
+                    <include name="testTabNavigation"/>
+                    <include name="testMenuNavigation"/>
+                    <include name="testProfileNavigation"/>
+                    <include name="testSearchNavigation"/>
+                    <include name="testNotificationNavigation"/>
+                    <include name="testLogoutNavigation"/>
+                    <include name="testDeepNavigation"/>
+                    <include name="testHomePageLoaded"/>
+                </methods>
+            </class>
+
+            <!-- Form Tests -->
+            <class name="com.mobile.tests.FormTest">
+                <methods>
+                    <include name="testValidFormSubmission"/>
+                    <include name="testFormFieldValidation"/>
+                    <include name="testEmailValidation"/>
+                    <include name="testFormWithDataProvider"/>
+                    <include name="testFormCancel"/>
+                    <include name="testFormFieldsDisplayed"/>
+                    <include name="testCheckboxFunctionality"/>
+                    <include name="testMinimumRequiredFields"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+</suite>
+
+<!--
+    Alternative TestNG configurations:
+
+    1. Smoke Test Suite (smoke-tests.xml):
+       - Quick validation tests
+       - Critical path testing
+       - Pre-deployment verification
+
+    2. Regression Test Suite (regression-tests.xml):
+       - Comprehensive test coverage
+       - All test classes
+       - Extended timeout values
+
+    3. Single Platform Suite:
+       - Remove the platform you're not testing
+       - Set enabled="true" for active platform
+
+    Usage Examples:
+
+    1. Run all tests:
+       mvn test
+
+    2. Run with specific TestNG file:
+       mvn test -DsuiteXmlFile=testng.xml
+
+    3. Run Android tests only:
+       mvn test -Dplatform=android
+
+    4. Run iOS tests only:
+       mvn test -Dplatform=ios
+
+    5. Run with custom thread count:
+       mvn test -DthreadCount=5
+-->

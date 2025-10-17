@@ -1,0 +1,39 @@
+[
+  {
+    "testCase": "Valid Form Submission",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "+1234567890",
+    "address": "123 Main Street, New York, NY 10001",
+    "country": "United States",
+    "expectedResult": "success"
+  },
+  {
+    "testCase": "Form with Special Characters",
+    "name": "María José García",
+    "email": "maria.jose@example.com",
+    "phone": "+34912345678",
+    "address": "Calle Mayor 15, Madrid, Spain",
+    "country": "Spain",
+    "expectedResult": "success"
+  },
+  {
+    "testCase": "Minimum Required Fields",
+    "name": "A",
+    "email": "a@b.co",
+    "phone": "+11234567",
+    "address": "Address",
+    "country": "India",
+    "expectedResult": "success"
+  },
+  {
+    "testCase": "Invalid Email Format",
+    "name": "Test User",
+    "email": "invalidemail",
+    "phone": "+1234567890",
+    "address": "123 Test Street",
+    "country": "Canada",
+    "expectedResult": "failure",
+    "expectedError": "Invalid email format"
+  }
+]
