@@ -287,4 +287,74 @@ public class ConfigReader {
     public String getTestDataPath() {
         return getProperty("test.data.path", "src/test/resources/testdata/");
     }
+
+    // ========== BrowserStack Configuration ==========
+
+    public String getBrowserStackUsername() {
+        return getProperty("browserstack.username");
+    }
+
+    public String getBrowserStackAccessKey() {
+        return getProperty("browserstack.access.key");
+    }
+
+    public String getBrowserStackHubUrl() {
+        return getProperty("browserstack.hub.url", "https://hub-cloud.browserstack.com/wd/hub");
+    }
+
+    public String getBrowserStackProject() {
+        return getProperty("browserstack.project", "Mobile Automation Framework");
+    }
+
+    public String getBrowserStackBuild() {
+        return getProperty("browserstack.build", "Build 1.0");
+    }
+
+    public String getBrowserStackName() {
+        return getProperty("browserstack.name", "Mobile Test Execution");
+    }
+
+    public boolean getBrowserStackDebug() {
+        return Boolean.parseBoolean(getProperty("browserstack.debug", "true"));
+    }
+
+    public boolean getBrowserStackNetworkLogs() {
+        return Boolean.parseBoolean(getProperty("browserstack.network.logs", "true"));
+    }
+
+    public boolean getBrowserStackVideo() {
+        return Boolean.parseBoolean(getProperty("browserstack.video", "true"));
+    }
+
+    public String getBrowserStackConsole() {
+        return getProperty("browserstack.console", "errors");
+    }
+
+    public String getBrowserStackTimezone() {
+        return getProperty("browserstack.timezone", "UTC");
+    }
+
+    public String getBrowserStackAndroidAppUrl() {
+        return getProperty("browserstack.android.app.url");
+    }
+
+    public String getBrowserStackIOSAppUrl() {
+        return getProperty("browserstack.ios.app.url");
+    }
+
+    public String getBrowserStackAndroidDevice() {
+        return getProperty("browserstack.android.device", "Google Pixel 7");
+    }
+
+    public String getBrowserStackAndroidOSVersion() {
+        return getProperty("browserstack.android.os.version", "13.0");
+    }
+
+    public String getBrowserStackIOSDevice() {
+        return getProperty("browserstack.ios.device", "iPhone 14");
+    }
+
+    public String getBrowserStackIOSOSVersion() {
+        return getProperty("browserstack.ios.os.version", "16");
+    }
 }

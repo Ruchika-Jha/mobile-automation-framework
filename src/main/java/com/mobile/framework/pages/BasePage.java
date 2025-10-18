@@ -365,13 +365,20 @@ public class BasePage {
 
     /**
      * Hides keyboard if visible
+     * Uses platform-specific methods for Android and iOS
      */
     protected void hideKeyboard() {
         try {
-            driver.hideKeyboard();
+            if (isAndroid()) {
+                // For Android, press back or hide using ADB command
+                ((AndroidDriver) driver).hideKeyboard();
+            } else if (isIOS()) {
+                // For iOS, tap on "Done" or "Return" button
+                driver.findElement(By.xpath("//XCUIElementTypeButton[@name='Done' or @name='Return']")).click();
+            }
             logger.info("Keyboard hidden");
         } catch (Exception e) {
-            logger.debug("Keyboard not visible or already hidden");
+            logger.debug("Keyboard not visible or already hidden: {}", e.getMessage());
         }
     }
 }

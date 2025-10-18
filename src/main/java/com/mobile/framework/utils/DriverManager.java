@@ -2,6 +2,7 @@ package com.mobile.framework.utils;
 
 import com.mobile.framework.config.ConfigReader;
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.InteractsWithApps;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import io.appium.java_client.ios.IOSDriver;
@@ -57,14 +58,19 @@ public class DriverManager {
      */
     public static AppiumDriver initializeDriver(String platform) throws MalformedURLException {
         logger.info("Initializing driver for platform: {}", platform);
+        logger.info("Execution mode: {}", configReader.getExecutionMode());
 
         AppiumDriver appiumDriver = null;
 
+        // Check execution mode
+        String executionMode = configReader.getExecutionMode();
+        boolean isBrowserStack = "browserstack".equalsIgnoreCase(executionMode);
+
         // Determine platform and initialize appropriate driver
         if (platform.equalsIgnoreCase("android")) {
-            appiumDriver = initializeAndroidDriver();
+            appiumDriver = isBrowserStack ? initializeBrowserStackAndroidDriver() : initializeAndroidDriver();
         } else if (platform.equalsIgnoreCase("ios")) {
-            appiumDriver = initializeIOSDriver();
+            appiumDriver = isBrowserStack ? initializeBrowserStackIOSDriver() : initializeIOSDriver();
         } else {
             logger.error("Invalid platform specified: {}. Use 'android' or 'ios'", platform);
             throw new IllegalArgumentException("Invalid platform: " + platform);
@@ -77,7 +83,7 @@ public class DriverManager {
         // Store driver in ThreadLocal
         driver.set(appiumDriver);
 
-        logger.info("Driver initialized successfully for platform: {}", platform);
+        logger.info("Driver initialized successfully for platform: {} in {} mode", platform, executionMode);
         return appiumDriver;
     }
 
@@ -243,8 +249,9 @@ public class DriverManager {
         logger.info("Restarting application");
         AppiumDriver currentDriver = getDriver();
         if (currentDriver != null) {
-            currentDriver.terminateApp(getAppIdentifier());
-            currentDriver.activateApp(getAppIdentifier());
+            String appIdentifier = getAppIdentifier();
+            ((InteractsWithApps) currentDriver).terminateApp(appIdentifier);
+            ((InteractsWithApps) currentDriver).activateApp(appIdentifier);
             logger.info("Application restarted successfully");
         }
     }
@@ -271,7 +278,7 @@ public class DriverManager {
         logger.info("Closing application");
         AppiumDriver currentDriver = getDriver();
         if (currentDriver != null) {
-            currentDriver.terminateApp(getAppIdentifier());
+            ((InteractsWithApps) currentDriver).terminateApp(getAppIdentifier());
             logger.info("Application closed successfully");
         }
     }
@@ -283,8 +290,112 @@ public class DriverManager {
         logger.info("Launching application");
         AppiumDriver currentDriver = getDriver();
         if (currentDriver != null) {
-            currentDriver.activateApp(getAppIdentifier());
+            ((InteractsWithApps) currentDriver).activateApp(getAppIdentifier());
             logger.info("Application launched successfully");
         }
+    }
+
+    /**
+     * Initializes Android driver for BrowserStack cloud execution
+     *
+     * @return AndroidDriver instance configured for BrowserStack
+     * @throws MalformedURLException if BrowserStack hub URL is invalid
+     */
+    private static AndroidDriver initializeBrowserStackAndroidDriver() throws MalformedURLException {
+        logger.info("Setting up Android driver for BrowserStack execution");
+
+        UiAutomator2Options options = new UiAutomator2Options();
+
+        // BrowserStack credentials
+        options.setCapability("userName", configReader.getBrowserStackUsername());
+        options.setCapability("accessKey", configReader.getBrowserStackAccessKey());
+
+        // Device capabilities
+        options.setCapability("deviceName", configReader.getBrowserStackAndroidDevice());
+        options.setCapability("platformName", "Android");
+        options.setCapability("platformVersion", configReader.getBrowserStackAndroidOSVersion());
+
+        // App capability
+        String appUrl = configReader.getBrowserStackAndroidAppUrl();
+        if (appUrl != null && !appUrl.isEmpty()) {
+            options.setCapability("app", appUrl);
+            logger.info("BrowserStack Android app URL: {}", appUrl);
+        } else {
+            logger.warn("BrowserStack Android app URL not configured. Upload your app to BrowserStack first.");
+        }
+
+        // BrowserStack specific capabilities
+        options.setCapability("project", configReader.getBrowserStackProject());
+        options.setCapability("build", configReader.getBrowserStackBuild());
+        options.setCapability("name", configReader.getBrowserStackName());
+        options.setCapability("browserstack.debug", configReader.getBrowserStackDebug());
+        options.setCapability("browserstack.networkLogs", configReader.getBrowserStackNetworkLogs());
+        options.setCapability("browserstack.video", configReader.getBrowserStackVideo());
+        options.setCapability("browserstack.console", configReader.getBrowserStackConsole());
+        options.setCapability("browserstack.timezone", configReader.getBrowserStackTimezone());
+
+        // Common capabilities
+        options.setAutomationName("UiAutomator2");
+        options.setNoReset(configReader.getNoReset());
+        options.setFullReset(configReader.getFullReset());
+        options.setNewCommandTimeout(Duration.ofSeconds(configReader.getNewCommandTimeout()));
+
+        // Create BrowserStack URL
+        URL browserStackUrl = new URL(configReader.getBrowserStackHubUrl());
+
+        logger.info("BrowserStack Android capabilities: {}", options.asMap());
+        return new AndroidDriver(browserStackUrl, options);
+    }
+
+    /**
+     * Initializes iOS driver for BrowserStack cloud execution
+     *
+     * @return IOSDriver instance configured for BrowserStack
+     * @throws MalformedURLException if BrowserStack hub URL is invalid
+     */
+    private static IOSDriver initializeBrowserStackIOSDriver() throws MalformedURLException {
+        logger.info("Setting up iOS driver for BrowserStack execution");
+
+        XCUITestOptions options = new XCUITestOptions();
+
+        // BrowserStack credentials
+        options.setCapability("userName", configReader.getBrowserStackUsername());
+        options.setCapability("accessKey", configReader.getBrowserStackAccessKey());
+
+        // Device capabilities
+        options.setCapability("deviceName", configReader.getBrowserStackIOSDevice());
+        options.setCapability("platformName", "iOS");
+        options.setCapability("platformVersion", configReader.getBrowserStackIOSOSVersion());
+
+        // App capability
+        String appUrl = configReader.getBrowserStackIOSAppUrl();
+        if (appUrl != null && !appUrl.isEmpty()) {
+            options.setCapability("app", appUrl);
+            logger.info("BrowserStack iOS app URL: {}", appUrl);
+        } else {
+            logger.warn("BrowserStack iOS app URL not configured. Upload your app to BrowserStack first.");
+        }
+
+        // BrowserStack specific capabilities
+        options.setCapability("project", configReader.getBrowserStackProject());
+        options.setCapability("build", configReader.getBrowserStackBuild());
+        options.setCapability("name", configReader.getBrowserStackName());
+        options.setCapability("browserstack.debug", configReader.getBrowserStackDebug());
+        options.setCapability("browserstack.networkLogs", configReader.getBrowserStackNetworkLogs());
+        options.setCapability("browserstack.video", configReader.getBrowserStackVideo());
+        options.setCapability("browserstack.console", configReader.getBrowserStackConsole());
+        options.setCapability("browserstack.timezone", configReader.getBrowserStackTimezone());
+
+        // Common capabilities
+        options.setAutomationName("XCUITest");
+        options.setNoReset(configReader.getNoReset());
+        options.setFullReset(configReader.getFullReset());
+        options.setNewCommandTimeout(Duration.ofSeconds(configReader.getNewCommandTimeout()));
+
+        // Create BrowserStack URL
+        URL browserStackUrl = new URL(configReader.getBrowserStackHubUrl());
+
+        logger.info("BrowserStack iOS capabilities: {}", options.asMap());
+        return new IOSDriver(browserStackUrl, options);
     }
 }

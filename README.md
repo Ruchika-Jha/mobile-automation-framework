@@ -20,6 +20,7 @@ A professional, production-ready mobile automation framework built with **Appium
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Running Tests](#running-tests)
+- [BrowserStack Integration](#browserstack-integration)
 - [Test Reporting](#test-reporting)
 - [CI/CD Integration](#cicd-integration)
 - [Best Practices](#best-practices)
@@ -34,12 +35,14 @@ A professional, production-ready mobile automation framework built with **Appium
 - **Data-Driven Testing** using JSON test data files
 - **Parallel Test Execution** for faster feedback
 - **Cross-Platform Support** for both Android and iOS
+- **Cloud Platform Support** - BrowserStack integration for cloud-based testing
 - **ExtentReports** for comprehensive HTML test reports
 - **Screenshot Capture** on test failures
 - **Log4j2** for detailed logging
 - **TestNG** for test management and execution
 - **CI/CD Ready** with Azure DevOps pipeline configuration
 - **Thread-Safe** driver management for parallel execution
+- **Runtime Configuration** - Override properties via command line without editing files
 - **Reusable Utilities** for common mobile actions
 - **Smart Wait Mechanisms** (implicit, explicit, fluent waits)
 - **Mobile Gestures** (tap, swipe, scroll, long press)
@@ -213,12 +216,35 @@ ios.device.name=iPhone 15 Pro
 ios.platform.version=17.0
 ios.app.path=src/test/resources/apps/sample-ios-app.app
 
+# Execution Mode (local or browserstack)
+execution.mode=local
+
 # Wait Configuration
 implicit.wait=10
 explicit.wait=30
 
 # Parallel Execution
 thread.count=3
+```
+
+### Runtime Configuration Override
+
+You can override any configuration property at runtime without editing the config file:
+
+```bash
+# Override device configuration
+mvn test -Dandroid.device.name="Pixel_8_API_34" -Dandroid.platform.version="15.0"
+
+# Override Appium server URL
+mvn test -Dappium.server.url="http://127.0.0.1:4724"
+
+# Override execution mode
+mvn test -Dexecution.mode=browserstack
+
+# Combine multiple overrides
+mvn test -Dandroid.device.name="Galaxy_S23" \
+         -Dappium.server.url="http://127.0.0.1:4725" \
+         -Dthread.count=5
 ```
 
 ### testng.xml
@@ -272,6 +298,123 @@ mvn clean test -DthreadCount=5
 ```bash
 mvn clean test -Dparallel=methods -DthreadCount=3
 ```
+
+### Run on Different Devices Without Editing Config
+
+```bash
+# Device 1 - Using defaults from config.properties
+mvn clean test
+
+# Device 2 - Override device at runtime
+mvn clean test -Dandroid.device.name="emulator-5556" \
+                -Dappium.server.url="http://127.0.0.1:4724"
+
+# Real iOS Device - Override with UDID
+mvn clean test -Dplatform=ios \
+                -Dios.device.name="iPhone 15" \
+                -Dios.udid="00008030-001234567890"
+```
+
+---
+
+## BrowserStack Integration
+
+The framework supports running tests on BrowserStack cloud platform without any code changes.
+
+### Setup BrowserStack
+
+#### 1. Upload Your App to BrowserStack
+
+```bash
+curl -u "USERNAME:ACCESS_KEY" \
+  -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
+  -F "file=@/path/to/your/app.apk"
+```
+
+Response will contain your app URL:
+```json
+{
+  "app_url": "bs://c700ce60cf13ae8ed97705a55b8e022f13c5827c"
+}
+```
+
+#### 2. Configure BrowserStack Credentials
+
+Edit `src/main/resources/config.properties`:
+
+```properties
+# Set execution mode
+execution.mode=browserstack
+
+# BrowserStack credentials
+browserstack.username=your_username
+browserstack.access.key=your_access_key
+
+# BrowserStack app URLs
+browserstack.android.app.url=bs://your-android-app-id
+browserstack.ios.app.url=bs://your-ios-app-id
+
+# Optional: BrowserStack device configuration
+browserstack.android.device=Google Pixel 7
+browserstack.android.os.version=13.0
+browserstack.ios.device=iPhone 14
+browserstack.ios.os.version=16
+```
+
+### Running Tests on BrowserStack
+
+#### Using config.properties
+```bash
+# Just run tests - framework will use BrowserStack based on execution.mode
+mvn clean test
+```
+
+#### Using Runtime Parameters (No config edit needed)
+```bash
+# Run on BrowserStack with runtime override
+mvn clean test -Dexecution.mode=browserstack \
+                -Dbrowserstack.username=your_username \
+                -Dbrowserstack.access.key=your_key \
+                -Dbrowserstack.android.app.url=bs://your-app-id
+
+# Run on specific BrowserStack device
+mvn clean test -Dexecution.mode=browserstack \
+                -Dbrowserstack.android.device="Samsung Galaxy S23" \
+                -Dbrowserstack.android.os.version="13.0"
+
+# Run iOS tests on BrowserStack
+mvn clean test -Dplatform=ios \
+                -Dexecution.mode=browserstack \
+                -Dbrowserstack.ios.device="iPhone 15 Pro" \
+                -Dbrowserstack.ios.os.version="17"
+```
+
+### BrowserStack Features Included
+
+- **Video Recording** - Automatically records test execution
+- **Network Logs** - Captures network traffic for debugging
+- **Debug Mode** - Enhanced debugging with visual logs
+- **Console Logs** - Captures app console errors
+- **Build Organization** - Groups tests by project and build
+- **Parallel Execution** - Run tests on multiple devices simultaneously
+
+### Viewing BrowserStack Results
+
+After test execution, view results at:
+- **Dashboard**: https://app-automate.browserstack.com/dashboard
+- **Builds**: All test runs organized by build name
+- **Videos**: Recorded videos of test execution
+- **Logs**: Detailed logs and network traffic
+
+### BrowserStack + Parallel Execution
+
+Run tests on multiple BrowserStack devices in parallel:
+
+```bash
+mvn clean test -Dexecution.mode=browserstack -DthreadCount=5
+```
+
+This will execute tests on up to 5 BrowserStack devices simultaneously (based on your BrowserStack plan).
 
 ---
 
@@ -446,6 +589,27 @@ Solution:
 - Verify Appium and driver versions
 - Review timeout settings
 - Check device availability
+```
+
+**Issue: How to run on different devices without editing config.properties?**
+```
+Solution: Use runtime parameters to override configuration
+mvn test -Dandroid.device.name="Device_Name" -Dappium.server.url="http://127.0.0.1:4724"
+```
+
+**Issue: How to switch between local and BrowserStack execution?**
+```
+Solution: Override execution mode at runtime
+Local: mvn test -Dexecution.mode=local
+BrowserStack: mvn test -Dexecution.mode=browserstack
+```
+
+**Issue: BrowserStack authentication failed**
+```
+Solution:
+- Verify browserstack.username and browserstack.access.key in config.properties
+- Check your BrowserStack account is active
+- Ensure app is uploaded to BrowserStack and app URL is correct
 ```
 
 ---
