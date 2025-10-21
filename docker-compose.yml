@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # Mobile Automation Tests with embedded Appium
+  mobile-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mobile-automation-tests
+    ports:
+      - "4723:4723"
+    environment:
+      - PLATFORM=${PLATFORM:-android}
+      - EXECUTION_MODE=${EXECUTION_MODE:-local}
+    volumes:
+      # Test output directories
+      - ./reports:/mobile-automation-framework/reports
+      - ./logs:/mobile-automation-framework/logs
+
+      # Maven cache for faster rebuilds
+      - maven-cache:/root/.m2
+
+      # USB device access for real devices
+      - /dev/bus/usb:/dev/bus/usb
+
+    privileged: true
+
+    # Health check for Appium
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4723/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# Named volumes
+volumes:
+  maven-cache:

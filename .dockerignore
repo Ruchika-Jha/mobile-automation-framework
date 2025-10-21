@@ -1,0 +1,29 @@
+# Maven
+target/
+*.class
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Reports
+reports/
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Test data
+screenshots/
+*.log
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore

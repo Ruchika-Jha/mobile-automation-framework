@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.annotations.*;
 
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 
 /**
@@ -92,11 +93,26 @@ public class BaseTest {
      * @throws MalformedURLException if Appium server URL is invalid
      */
     @BeforeMethod(alwaysRun = true)
-    public void setUp() throws MalformedURLException {
+    public void setUp(Method method) throws MalformedURLException {
         logger.info("========== Test Setup Started ==========");
         logger.info("Initializing driver for platform: {}", platform);
 
         try {
+            // Get descriptive test name from @Test annotation's testName attribute
+            String testName = method.getName(); // Default to method name
+            Test testAnnotation = method.getAnnotation(Test.class);
+
+            if (testAnnotation != null && testAnnotation.testName() != null && !testAnnotation.testName().isEmpty()) {
+                testName = testAnnotation.testName();
+                logger.info("Using descriptive test name from annotation: {}", testName);
+            } else {
+                logger.info("No testName attribute found, using method name: {}", testName);
+            }
+
+            // Set test name for BrowserStack session naming
+            DriverManager.setTestName(testName);
+            logger.info("Test name set to: {}", testName);
+
             // Initialize driver using DriverManager
             DriverManager.initializeDriver(platform);
             logger.info("Driver initialized successfully");
@@ -133,6 +149,9 @@ public class BaseTest {
             } else {
                 logger.warn("Driver was not initialized, skipping quit");
             }
+
+            // Clear test name from ThreadLocal
+            DriverManager.clearTestName();
 
         } catch (Exception e) {
             logger.error("Error during teardown: {}", e.getMessage());

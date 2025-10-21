@@ -22,9 +22,9 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Dependency Versions - Latest stable versions as of 2025 -->
-        <appium.version>9.3.0</appium.version>
-        <selenium.version>4.25.0</selenium.version>
+        <!-- Dependency Versions - Stable versions for production -->
+        <appium.version>8.6.0</appium.version>
+        <selenium.version>4.15.0</selenium.version>
         <testng.version>7.10.2</testng.version>
         <extentreports.version>5.1.2</extentreports.version>
         <log4j.version>2.24.1</log4j.version>
@@ -163,9 +163,25 @@
             </resource>
         </resources>
         <testResources>
+            <!-- Filter text-based resources (properties, json, xml) -->
             <testResource>
                 <directory>src/test/resources</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*.apk</exclude>
+                    <exclude>**/*.app</exclude>
+                    <exclude>**/*.ipa</exclude>
+                </excludes>
+            </testResource>
+            <!-- Don't filter binary files (apps) -->
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.apk</include>
+                    <include>**/*.app</include>
+                    <include>**/*.ipa</include>
+                </includes>
             </testResource>
         </testResources>
     </build>

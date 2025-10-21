@@ -23,105 +23,67 @@ import java.util.List;
 public class HomePage extends BasePage {
 
     // ========== PAGE ELEMENTS ==========
+    // Sauce Labs Demo App - Products Page Locators
 
     /**
-     * Welcome message/header
+     * Products page header/title (after login)
      */
-    @AndroidFindBy(id = "com.example.sampleapp:id/welcomeText")
-    @iOSXCUITFindBy(accessibility = "welcomeText")
-    private WebElement welcomeMessage;
+    @AndroidFindBy(xpath = "//android.widget.TextView[@text='PRODUCTS']")
+    @iOSXCUITFindBy(accessibility = "PRODUCTS")
+    private WebElement productsHeader;
 
     /**
-     * User profile icon
+     * Menu/hamburger icon (for accessing logout)
      */
-    @AndroidFindBy(id = "com.example.sampleapp:id/profileIcon")
-    @iOSXCUITFindBy(accessibility = "profileIcon")
-    private WebElement profileIcon;
-
-    /**
-     * Menu/hamburger icon
-     */
-    @AndroidFindBy(id = "com.example.sampleapp:id/menuIcon")
-    @iOSXCUITFindBy(accessibility = "menuIcon")
+    @AndroidFindBy(accessibility = "test-Menu")
+    @iOSXCUITFindBy(accessibility = "test-Menu")
     private WebElement menuIcon;
 
     /**
-     * Search bar
+     * Cart icon
      */
-    @AndroidFindBy(id = "com.example.sampleapp:id/searchBar")
-    @iOSXCUITFindBy(accessibility = "searchBar")
-    private WebElement searchBar;
+    @AndroidFindBy(accessibility = "test-Cart")
+    @iOSXCUITFindBy(accessibility = "test-Cart")
+    private WebElement cartIcon;
 
     /**
-     * Navigation tabs - Dashboard
+     * Logout button (in menu)
      */
-    @AndroidFindBy(id = "com.example.sampleapp:id/dashboardTab")
-    @iOSXCUITFindBy(accessibility = "dashboardTab")
-    private WebElement dashboardTab;
-
-    /**
-     * Navigation tabs - Forms
-     */
-    @AndroidFindBy(id = "com.example.sampleapp:id/formsTab")
-    @iOSXCUITFindBy(accessibility = "formsTab")
-    private WebElement formsTab;
-
-    /**
-     * Navigation tabs - Settings
-     */
-    @AndroidFindBy(id = "com.example.sampleapp:id/settingsTab")
-    @iOSXCUITFindBy(accessibility = "settingsTab")
-    private WebElement settingsTab;
-
-    /**
-     * Logout button
-     */
-    @AndroidFindBy(id = "com.example.sampleapp:id/logoutButton")
-    @iOSXCUITFindBy(accessibility = "logoutButton")
+    @AndroidFindBy(accessibility = "test-LOGOUT")
+    @iOSXCUITFindBy(accessibility = "test-LOGOUT")
     private WebElement logoutButton;
 
     /**
-     * Notification icon
+     * Product items list
      */
-    @AndroidFindBy(id = "com.example.sampleapp:id/notificationIcon")
-    @iOSXCUITFindBy(accessibility = "notificationIcon")
-    private WebElement notificationIcon;
+    @AndroidFindBy(xpath = "//android.view.ViewGroup[@content-desc='test-Item']")
+    @iOSXCUITFindBy(xpath = "//XCUIElementTypeOther[@name='test-Item']")
+    private List<WebElement> productItemsList;
 
     /**
-     * Notification badge count
+     * First product - Sauce Labs Backpack
      */
-    @AndroidFindBy(id = "com.example.sampleapp:id/notificationBadge")
-    @iOSXCUITFindBy(accessibility = "notificationBadge")
-    private WebElement notificationBadge;
+    @AndroidFindBy(xpath = "(//android.view.ViewGroup[@content-desc='test-Item'])[1]")
+    @iOSXCUITFindBy(xpath = "(//XCUIElementTypeOther[@name='test-Item'])[1]")
+    private WebElement firstProduct;
 
     /**
-     * List of items on home screen
+     * Sort dropdown button
      */
-    @AndroidFindBy(xpath = "//android.widget.ListView[@resource-id='com.example.sampleapp:id/itemList']/android.widget.TextView")
-    @iOSXCUITFindBy(xpath = "//XCUIElementTypeTable/XCUIElementTypeCell")
-    private List<WebElement> homeItemsList;
+    @AndroidFindBy(accessibility = "test-Modal Selector Button")
+    @iOSXCUITFindBy(accessibility = "test-Modal Selector Button")
+    private WebElement sortButton;
 
     // ========== PAGE ACTIONS ==========
 
     /**
-     * Gets welcome message text
+     * Gets products header text
      *
-     * @return Welcome message string
+     * @return Products header string
      */
-    public String getWelcomeMessage() {
-        logger.info("Getting welcome message");
-        return getText(welcomeMessage);
-    }
-
-    /**
-     * Clicks on profile icon
-     *
-     * @return Current HomePage instance
-     */
-    public HomePage clickProfileIcon() {
-        logger.info("Clicking profile icon");
-        click(profileIcon);
-        return this;
+    public String getProductsHeader() {
+        logger.info("Getting products header");
+        return getText(productsHeader);
     }
 
     /**
@@ -136,48 +98,13 @@ public class HomePage extends BasePage {
     }
 
     /**
-     * Performs search action
-     *
-     * @param searchText Text to search
-     * @return Current HomePage instance
-     */
-    public HomePage search(String searchText) {
-        logger.info("Searching for: {}", searchText);
-        sendKeys(searchBar, searchText);
-        hideKeyboard();
-        return this;
-    }
-
-    /**
-     * Navigates to Dashboard tab
+     * Clicks cart icon
      *
      * @return Current HomePage instance
      */
-    public HomePage navigateToDashboard() {
-        logger.info("Navigating to Dashboard");
-        click(dashboardTab);
-        return this;
-    }
-
-    /**
-     * Navigates to Forms tab
-     *
-     * @return FormPage instance
-     */
-    public FormPage navigateToForms() {
-        logger.info("Navigating to Forms");
-        click(formsTab);
-        return new FormPage();
-    }
-
-    /**
-     * Navigates to Settings tab
-     *
-     * @return Current HomePage instance
-     */
-    public HomePage navigateToSettings() {
-        logger.info("Navigating to Settings");
-        click(settingsTab);
+    public HomePage clickCart() {
+        logger.info("Clicking cart icon");
+        click(cartIcon);
         return this;
     }
 
@@ -189,119 +116,220 @@ public class HomePage extends BasePage {
     public LoginPage logout() {
         logger.info("Logging out");
         openMenu();
+        waitForElementToBeVisible(logoutButton);
         click(logoutButton);
         return new LoginPage();
     }
 
     /**
-     * Clicks notification icon
+     * Clicks on first product
      *
      * @return Current HomePage instance
      */
-    public HomePage clickNotificationIcon() {
-        logger.info("Clicking notification icon");
-        click(notificationIcon);
+    public HomePage clickFirstProduct() {
+        logger.info("Clicking first product");
+        click(firstProduct);
+        return this;
+    }
+
+    /**
+     * Clicks sort button
+     *
+     * @return Current HomePage instance
+     */
+    public HomePage clickSortButton() {
+        logger.info("Clicking sort button");
+        click(sortButton);
         return this;
     }
 
     // ========== VALIDATION METHODS ==========
 
     /**
-     * Verifies home page is displayed
+     * Verifies products page is displayed
      *
-     * @return true if home page is displayed
+     * @return true if products page is displayed
      */
     public boolean isHomePageDisplayed() {
-        logger.info("Verifying home page is displayed");
-        return isElementDisplayed(welcomeMessage);
+        logger.info("Verifying products page is displayed");
+        return isElementDisplayed(productsHeader);
     }
 
     /**
-     * Verifies user is logged in by checking welcome message
+     * Verifies products header contains expected text
      *
-     * @param expectedUsername Expected username in welcome message
-     * @return true if username matches
+     * @return true if header shows "PRODUCTS"
      */
-    public boolean verifyUserLoggedIn(String expectedUsername) {
-        logger.info("Verifying user logged in: {}", expectedUsername);
-        String welcomeText = getWelcomeMessage();
-        return welcomeText.contains(expectedUsername);
+    public boolean verifyProductsHeader() {
+        logger.info("Verifying products header");
+        String headerText = getProductsHeader();
+        return headerText.equals("PRODUCTS");
     }
 
     /**
-     * Checks if notification badge is displayed
+     * Gets count of product items
      *
-     * @return true if notification badge is visible
+     * @return Number of products
      */
-    public boolean isNotificationBadgeDisplayed() {
-        return isElementDisplayed(notificationBadge);
+    public int getProductItemsCount() {
+        logger.info("Getting product items count");
+        return productItemsList.size();
     }
 
     /**
-     * Gets notification count from badge
+     * Clicks on a specific product by index
      *
-     * @return Notification count
-     */
-    public int getNotificationCount() {
-        if (isNotificationBadgeDisplayed()) {
-            String badgeText = getText(notificationBadge);
-            try {
-                return Integer.parseInt(badgeText);
-            } catch (NumberFormatException e) {
-                logger.warn("Unable to parse notification count: {}", badgeText);
-                return 0;
-            }
-        }
-        return 0;
-    }
-
-    /**
-     * Verifies all navigation tabs are displayed
-     *
-     * @return true if all tabs are visible
-     */
-    public boolean verifyNavigationTabsDisplayed() {
-        logger.info("Verifying navigation tabs");
-        return isElementDisplayed(dashboardTab) &&
-                isElementDisplayed(formsTab) &&
-                isElementDisplayed(settingsTab);
-    }
-
-    /**
-     * Gets count of items in home list
-     *
-     * @return Number of items
-     */
-    public int getHomeItemsCount() {
-        logger.info("Getting home items count");
-        return homeItemsList.size();
-    }
-
-    /**
-     * Clicks on a specific item from home list by index
-     *
-     * @param index Index of item to click (0-based)
+     * @param index Index of product to click (0-based)
      * @return Current HomePage instance
      */
-    public HomePage clickHomeItemByIndex(int index) {
-        logger.info("Clicking home item at index: {}", index);
-        if (index >= 0 && index < homeItemsList.size()) {
-            click(homeItemsList.get(index));
+    public HomePage clickProductByIndex(int index) {
+        logger.info("Clicking product at index: {}", index);
+        if (index >= 0 && index < productItemsList.size()) {
+            click(productItemsList.get(index));
         } else {
-            logger.error("Invalid index: {}. List size: {}", index, homeItemsList.size());
+            logger.error("Invalid index: {}. Product list size: {}", index, productItemsList.size());
         }
         return this;
     }
 
     /**
-     * Verifies home page loaded completely
+     * Verifies products page loaded completely
      *
      * @return true if page is fully loaded
      */
     public boolean verifyHomePageLoaded() {
-        logger.info("Verifying home page loaded");
+        logger.info("Verifying products page loaded");
         return isHomePageDisplayed() &&
-                isElementDisplayed(profileIcon) &&
-                verifyNavigationTabsDisplayed();
+                isElementDisplayed(menuIcon) &&
+                isElementDisplayed(cartIcon) &&
+                getProductItemsCount() > 0;
+    }
+
+    // ========== NAVIGATION METHODS (App-Specific Placeholders) ==========
+
+    /**
+     * Gets welcome message (if available in the app)
+     * Note: This is a placeholder - update with actual app locator
+     *
+     * @return Welcome message text
+     */
+    public String getWelcomeMessage() {
+        logger.info("Getting welcome message");
+        // Placeholder: Return products header as welcome message
+        return getProductsHeader();
+    }
+
+    /**
+     * Navigates to Forms page
+     * Note: This is a placeholder - update with actual app navigation
+     *
+     * @return FormPage instance
+     */
+    public FormPage navigateToForms() {
+        logger.info("Navigating to forms");
+        // Placeholder: For Sauce Labs app, navigate to menu
+        openMenu();
+        return new FormPage();
+    }
+
+    /**
+     * Verifies navigation tabs are displayed
+     * Note: This is a placeholder - update with actual app locators
+     *
+     * @return true if navigation tabs are displayed
+     */
+    public boolean verifyNavigationTabsDisplayed() {
+        logger.info("Verifying navigation tabs displayed");
+        // Placeholder: Check if menu and cart icons are displayed
+        return isElementDisplayed(menuIcon) && isElementDisplayed(cartIcon);
+    }
+
+    /**
+     * Navigates to Dashboard
+     * Note: This is a placeholder - update with actual app navigation
+     *
+     * @return HomePage instance
+     */
+    public HomePage navigateToDashboard() {
+        logger.info("Navigating to dashboard");
+        // Placeholder: Stay on current page
+        return this;
+    }
+
+    /**
+     * Navigates to Settings
+     * Note: This is a placeholder - update with actual app navigation
+     *
+     * @return HomePage instance
+     */
+    public HomePage navigateToSettings() {
+        logger.info("Navigating to settings");
+        // Placeholder: Open menu (settings might be in menu)
+        openMenu();
+        return this;
+    }
+
+    /**
+     * Clicks profile icon
+     * Note: This is a placeholder - update with actual app locator
+     *
+     * @return HomePage instance
+     */
+    public HomePage clickProfileIcon() {
+        logger.info("Clicking profile icon");
+        // Placeholder: Click menu icon
+        click(menuIcon);
+        return this;
+    }
+
+    /**
+     * Performs search with given query
+     * Note: This is a placeholder - update with actual app search functionality
+     *
+     * @param query Search query
+     * @return HomePage instance
+     */
+    public HomePage search(String query) {
+        logger.info("Searching for: {}", query);
+        // Placeholder: No search in Sauce Labs demo app
+        logger.warn("Search functionality not implemented for this app");
+        return this;
+    }
+
+    /**
+     * Clicks notification icon
+     * Note: This is a placeholder - update with actual app locator
+     *
+     * @return HomePage instance
+     */
+    public HomePage clickNotificationIcon() {
+        logger.info("Clicking notification icon");
+        // Placeholder: Click cart icon
+        click(cartIcon);
+        return this;
+    }
+
+    /**
+     * Checks if notification badge is displayed
+     * Note: This is a placeholder - update with actual app locator
+     *
+     * @return true if notification badge is displayed
+     */
+    public boolean isNotificationBadgeDisplayed() {
+        logger.info("Checking notification badge");
+        // Placeholder: Return false
+        return false;
+    }
+
+    /**
+     * Gets notification count
+     * Note: This is a placeholder - update with actual app logic
+     *
+     * @return Notification count
+     */
+    public int getNotificationCount() {
+        logger.info("Getting notification count");
+        // Placeholder: Return 0
+        return 0;
     }
 }

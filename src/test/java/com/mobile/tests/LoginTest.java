@@ -32,7 +32,7 @@ public class LoginTest extends BaseTest {
      * 5. Verify user is redirected to home page
      * 6. Verify welcome message contains username
      */
-    @Test(priority = 1, description = "Verify user can login with valid credentials")
+    @Test(priority = 1, testName = "Verify user can login with valid credentials", description = "Verify user can login with valid credentials")
     public void testValidLogin() {
         logTestStep("Starting valid login test");
 
@@ -45,9 +45,9 @@ public class LoginTest extends BaseTest {
                 "Login page should be displayed");
         logAssertion("Login page is displayed", true);
 
-        // Perform login
+        // Perform login with Sauce Labs Demo App credentials
         logTestStep("Performing login with valid credentials");
-        HomePage homePage = loginPage.login("testuser@example.com", "Test@123");
+        HomePage homePage = loginPage.login("standard_user", "secret_sauce");
 
         // Verify home page is displayed
         logTestStep("Verifying successful navigation to home page");
@@ -55,12 +55,12 @@ public class LoginTest extends BaseTest {
                 "Home page should be displayed after successful login");
         logAssertion("Home page is displayed after login", true);
 
-        // Verify welcome message
-        logTestStep("Verifying welcome message");
-        String welcomeMessage = homePage.getWelcomeMessage();
-        Assert.assertTrue(welcomeMessage.contains("Welcome"),
-                "Welcome message should be displayed");
-        logAssertion("Welcome message is displayed", true);
+        // Verify products header (Sauce Labs app shows "PRODUCTS" instead of welcome message)
+        logTestStep("Verifying products header");
+        String productsHeader = homePage.getWelcomeMessage(); // Returns PRODUCTS header
+        Assert.assertTrue(productsHeader.contains("PRODUCTS"),
+                "Products header should be displayed");
+        logAssertion("Products header is displayed", true);
     }
 
     /**
@@ -73,7 +73,7 @@ public class LoginTest extends BaseTest {
      * 4. Verify error message is displayed
      * 5. Verify user remains on login page
      */
-    @Test(priority = 2, description = "Verify login fails with invalid credentials")
+    @Test(priority = 2, testName = "Verify login fails with invalid credentials", description = "Verify login fails with invalid credentials")
     public void testInvalidLogin() {
         logTestStep("Starting invalid login test");
 
@@ -111,7 +111,7 @@ public class LoginTest extends BaseTest {
      * 4. Verify validation error is displayed
      * 5. Verify login button is disabled or error shown
      */
-    @Test(priority = 3, description = "Verify login form validation with empty fields")
+    @Test(priority = 3, testName = "Verify login form validation with empty fields", description = "Verify login form validation with empty fields")
     public void testEmptyFieldsValidation() {
         logTestStep("Starting empty fields validation test");
 
@@ -145,7 +145,7 @@ public class LoginTest extends BaseTest {
      * @param testData JSON object containing test data
      */
     @Test(priority = 4, dataProvider = "loginData", dataProviderClass = TestDataProvider.class,
-            description = "Data-driven login test with multiple scenarios")
+            testName = "Data-driven login test with multiple scenarios", description = "Data-driven login test with multiple scenarios")
     public void testLoginWithDataProvider(JSONObject testData) {
         // Extract test data from JSON
         String testCase = TestDataProvider.getString(testData, "testCase");
@@ -192,7 +192,7 @@ public class LoginTest extends BaseTest {
      * 2. Click on forgot password link
      * 3. Verify navigation to password recovery page
      */
-    @Test(priority = 5, description = "Verify forgot password link works")
+    @Test(priority = 5, testName = "Verify forgot password link works", description = "Verify forgot password link works")
     public void testForgotPasswordLink() {
         logTestStep("Starting forgot password link test");
 
@@ -218,7 +218,7 @@ public class LoginTest extends BaseTest {
      * 2. Verify all login page elements are visible
      * 3. Verify username field, password field, login button are present
      */
-    @Test(priority = 6, description = "Verify all login page elements are displayed")
+    @Test(priority = 6, testName = "Verify all login page elements are displayed", description = "Verify all login page elements are displayed")
     public void testLoginPageElements() {
         logTestStep("Verifying login page elements");
 

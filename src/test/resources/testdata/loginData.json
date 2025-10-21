@@ -1,36 +1,42 @@
 [
   {
-    "testCase": "Valid Login",
-    "username": "testuser@example.com",
-    "password": "Test@123",
+    "testCase": "Valid Login - Standard User",
+    "username": "standard_user",
+    "password": "secret_sauce",
     "expectedResult": "success"
   },
   {
     "testCase": "Invalid Username",
-    "username": "invalid@example.com",
-    "password": "Test@123",
+    "username": "invalid_user",
+    "password": "secret_sauce",
     "expectedResult": "failure",
-    "expectedError": "Invalid credentials"
+    "expectedError": "Username and password do not match"
   },
   {
     "testCase": "Invalid Password",
-    "username": "testuser@example.com",
+    "username": "standard_user",
     "password": "wrongpassword",
     "expectedResult": "failure",
-    "expectedError": "Invalid credentials"
+    "expectedError": "Username and password do not match"
   },
   {
     "testCase": "Empty Username",
     "username": "",
-    "password": "Test@123",
+    "password": "secret_sauce",
     "expectedResult": "failure",
     "expectedError": "Username is required"
   },
   {
     "testCase": "Empty Password",
-    "username": "testuser@example.com",
+    "username": "standard_user",
     "password": "",
     "expectedResult": "failure",
     "expectedError": "Password is required"
+  },
+  {
+    "testCase": "Valid Login - Problem User",
+    "username": "problem_user",
+    "password": "secret_sauce",
+    "expectedResult": "success"
   }
 ]

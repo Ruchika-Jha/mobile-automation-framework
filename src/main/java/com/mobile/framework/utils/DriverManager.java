@@ -15,6 +15,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * DriverManager - Manages Appium driver lifecycle
@@ -41,6 +43,12 @@ public class DriverManager {
     // ThreadLocal to maintain separate driver instance for each thread
     // This is crucial for parallel test execution
     private static ThreadLocal<AppiumDriver> driver = new ThreadLocal<>();
+
+    // ThreadLocal to store test name for BrowserStack session naming
+    private static ThreadLocal<String> currentTestName = new ThreadLocal<>();
+
+    // Build name with timestamp - created once per suite execution
+    private static String suiteExecutionBuildName = null;
 
     /**
      * Private constructor to prevent instantiation
@@ -242,6 +250,73 @@ public class DriverManager {
     }
 
     /**
+     * Sets the current test name for BrowserStack session naming
+     *
+     * @param testName Name of the test
+     */
+    public static void setTestName(String testName) {
+        currentTestName.set(testName);
+        logger.debug("Test name set to: {}", testName);
+    }
+
+    /**
+     * Gets the current test name
+     *
+     * @return Current test name or default name if not set
+     */
+    public static String getTestName() {
+        String testName = currentTestName.get();
+        return testName != null ? testName : configReader.getBrowserStackName();
+    }
+
+    /**
+     * Clears the test name from ThreadLocal
+     */
+    public static void clearTestName() {
+        currentTestName.remove();
+    }
+
+    /**
+     * Generates a dynamic build name with comprehensive information
+     * Format: Build_[Version]_[Platform]_[Device]_[Date]_[Time]
+     * Example: Build_1.0_Android_Pixel7_20251018_143045
+     *
+     * @param platform Platform name (android/ios)
+     * @param device Device name
+     * @return Formatted build name
+     */
+    private static String generateBuildName(String platform, String device) {
+        // Use cached build name for entire suite execution
+        if (suiteExecutionBuildName != null) {
+            return suiteExecutionBuildName;
+        }
+
+        // Generate timestamp
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        String timestamp = LocalDateTime.now().format(dateFormatter);
+
+        // Get build version from config
+        String buildVersion = configReader.getBrowserStackBuild(); // e.g., "Build 1.0"
+
+        // Clean device name (remove spaces and special characters)
+        String cleanDevice = device.replaceAll("[^a-zA-Z0-9]", "");
+
+        // Clean platform name
+        String cleanPlatform = platform.substring(0, 1).toUpperCase() + platform.substring(1).toLowerCase();
+
+        // Format: Build_1.0_Android_Pixel7_20251018_143045
+        suiteExecutionBuildName = String.format("%s_%s_%s_%s",
+            buildVersion.replace(" ", "_"),
+            cleanPlatform,
+            cleanDevice,
+            timestamp
+        );
+
+        logger.info("Generated build name: {}", suiteExecutionBuildName);
+        return suiteExecutionBuildName;
+    }
+
+    /**
      * Restarts the application
      * Useful for resetting app state between tests
      */
@@ -306,12 +381,9 @@ public class DriverManager {
 
         UiAutomator2Options options = new UiAutomator2Options();
 
-        // BrowserStack credentials
-        options.setCapability("userName", configReader.getBrowserStackUsername());
-        options.setCapability("accessKey", configReader.getBrowserStackAccessKey());
-
         // Device capabilities
-        options.setCapability("deviceName", configReader.getBrowserStackAndroidDevice());
+        String deviceName = configReader.getBrowserStackAndroidDevice();
+        options.setCapability("deviceName", deviceName);
         options.setCapability("platformName", "Android");
         options.setCapability("platformVersion", configReader.getBrowserStackAndroidOSVersion());
 
@@ -324,10 +396,10 @@ public class DriverManager {
             logger.warn("BrowserStack Android app URL not configured. Upload your app to BrowserStack first.");
         }
 
-        // BrowserStack specific capabilities
+        // BrowserStack specific capabilities with dynamic build name
         options.setCapability("project", configReader.getBrowserStackProject());
-        options.setCapability("build", configReader.getBrowserStackBuild());
-        options.setCapability("name", configReader.getBrowserStackName());
+        options.setCapability("build", generateBuildName("android", deviceName));
+        options.setCapability("name", getTestName()); // Use dynamic test name
         options.setCapability("browserstack.debug", configReader.getBrowserStackDebug());
         options.setCapability("browserstack.networkLogs", configReader.getBrowserStackNetworkLogs());
         options.setCapability("browserstack.video", configReader.getBrowserStackVideo());
@@ -340,10 +412,18 @@ public class DriverManager {
         options.setFullReset(configReader.getFullReset());
         options.setNewCommandTimeout(Duration.ofSeconds(configReader.getNewCommandTimeout()));
 
-        // Create BrowserStack URL
-        URL browserStackUrl = new URL(configReader.getBrowserStackHubUrl());
+        // Create BrowserStack URL with embedded credentials
+        // Format: https://username:accessKey@hub-cloud.browserstack.com/wd/hub
+        String username = configReader.getBrowserStackUsername();
+        String accessKey = configReader.getBrowserStackAccessKey();
+        String hubUrl = configReader.getBrowserStackHubUrl();
+
+        // Build URL with credentials
+        String browserStackUrlString = hubUrl.replace("https://", "https://" + username + ":" + accessKey + "@");
+        URL browserStackUrl = new URL(browserStackUrlString);
 
         logger.info("BrowserStack Android capabilities: {}", options.asMap());
+        logger.info("Connecting to BrowserStack at: {}", hubUrl);
         return new AndroidDriver(browserStackUrl, options);
     }
 
@@ -358,12 +438,9 @@ public class DriverManager {
 
         XCUITestOptions options = new XCUITestOptions();
 
-        // BrowserStack credentials
-        options.setCapability("userName", configReader.getBrowserStackUsername());
-        options.setCapability("accessKey", configReader.getBrowserStackAccessKey());
-
         // Device capabilities
-        options.setCapability("deviceName", configReader.getBrowserStackIOSDevice());
+        String deviceName = configReader.getBrowserStackIOSDevice();
+        options.setCapability("deviceName", deviceName);
         options.setCapability("platformName", "iOS");
         options.setCapability("platformVersion", configReader.getBrowserStackIOSOSVersion());
 
@@ -376,14 +453,14 @@ public class DriverManager {
             logger.warn("BrowserStack iOS app URL not configured. Upload your app to BrowserStack first.");
         }
 
-        // BrowserStack specific capabilities
+        // BrowserStack specific capabilities with dynamic build name
         options.setCapability("project", configReader.getBrowserStackProject());
-        options.setCapability("build", configReader.getBrowserStackBuild());
-        options.setCapability("name", configReader.getBrowserStackName());
+        options.setCapability("build", generateBuildName("ios", deviceName));
+        options.setCapability("name", getTestName()); // Use dynamic test name
         options.setCapability("browserstack.debug", configReader.getBrowserStackDebug());
         options.setCapability("browserstack.networkLogs", configReader.getBrowserStackNetworkLogs());
         options.setCapability("browserstack.video", configReader.getBrowserStackVideo());
-        options.setCapability("browserstack.console", configReader.getBrowserStackConsole());
+        // Note: browserstack.console is not supported for iOS app automation
         options.setCapability("browserstack.timezone", configReader.getBrowserStackTimezone());
 
         // Common capabilities
@@ -392,10 +469,18 @@ public class DriverManager {
         options.setFullReset(configReader.getFullReset());
         options.setNewCommandTimeout(Duration.ofSeconds(configReader.getNewCommandTimeout()));
 
-        // Create BrowserStack URL
-        URL browserStackUrl = new URL(configReader.getBrowserStackHubUrl());
+        // Create BrowserStack URL with embedded credentials
+        // Format: https://username:accessKey@hub-cloud.browserstack.com/wd/hub
+        String username = configReader.getBrowserStackUsername();
+        String accessKey = configReader.getBrowserStackAccessKey();
+        String hubUrl = configReader.getBrowserStackHubUrl();
+
+        // Build URL with credentials
+        String browserStackUrlString = hubUrl.replace("https://", "https://" + username + ":" + accessKey + "@");
+        URL browserStackUrl = new URL(browserStackUrlString);
 
         logger.info("BrowserStack iOS capabilities: {}", options.asMap());
+        logger.info("Connecting to BrowserStack at: {}", hubUrl);
         return new IOSDriver(browserStackUrl, options);
     }
 }

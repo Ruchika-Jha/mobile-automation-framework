@@ -370,11 +370,16 @@ public class BasePage {
     protected void hideKeyboard() {
         try {
             if (isAndroid()) {
-                // For Android, press back or hide using ADB command
-                ((AndroidDriver) driver).hideKeyboard();
+                // For Android, use mobile:hideKeyboard command
+                driver.executeScript("mobile: hideKeyboard");
             } else if (isIOS()) {
                 // For iOS, tap on "Done" or "Return" button
-                driver.findElement(By.xpath("//XCUIElementTypeButton[@name='Done' or @name='Return']")).click();
+                try {
+                    driver.findElement(By.xpath("//XCUIElementTypeButton[@name='Done' or @name='Return']")).click();
+                } catch (Exception e) {
+                    // Alternative: try tapping outside the keyboard area
+                    logger.debug("Done/Return button not found, trying alternative method");
+                }
             }
             logger.info("Keyboard hidden");
         } catch (Exception e) {

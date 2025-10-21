@@ -22,55 +22,42 @@ import org.openqa.selenium.WebElement;
 public class LoginPage extends BasePage {
 
     // ========== PAGE ELEMENTS ==========
+    // Sauce Labs Demo App Locators
 
     /**
      * Username input field
-     * Uses platform-specific locators for Android and iOS
+     * Sauce Labs app locators for Android and iOS
      */
-    @AndroidFindBy(id = "com.example.sampleapp:id/username")
-    @iOSXCUITFindBy(accessibility = "usernameTextField")
+    @AndroidFindBy(accessibility = "test-Username")
+    @iOSXCUITFindBy(accessibility = "test-Username")
     private WebElement usernameField;
 
     /**
      * Password input field
      */
-    @AndroidFindBy(id = "com.example.sampleapp:id/password")
-    @iOSXCUITFindBy(accessibility = "passwordTextField")
+    @AndroidFindBy(accessibility = "test-Password")
+    @iOSXCUITFindBy(accessibility = "test-Password")
     private WebElement passwordField;
 
     /**
      * Login button
      */
-    @AndroidFindBy(id = "com.example.sampleapp:id/loginButton")
-    @iOSXCUITFindBy(accessibility = "loginButton")
+    @AndroidFindBy(accessibility = "test-LOGIN")
+    @iOSXCUITFindBy(accessibility = "test-LOGIN")
     private WebElement loginButton;
 
     /**
-     * Error message text
+     * Error message text (displayed on invalid login)
      */
-    @AndroidFindBy(id = "com.example.sampleapp:id/errorMessage")
-    @iOSXCUITFindBy(accessibility = "errorMessage")
+    @AndroidFindBy(xpath = "//android.view.ViewGroup[@content-desc='test-Error message']/android.widget.TextView")
+    @iOSXCUITFindBy(accessibility = "test-Error message")
     private WebElement errorMessage;
 
     /**
-     * Forgot password link
+     * App logo/title (Swag Labs logo)
      */
-    @AndroidFindBy(id = "com.example.sampleapp:id/forgotPassword")
-    @iOSXCUITFindBy(accessibility = "forgotPasswordLink")
-    private WebElement forgotPasswordLink;
-
-    /**
-     * Sign up link
-     */
-    @AndroidFindBy(id = "com.example.sampleapp:id/signupLink")
-    @iOSXCUITFindBy(accessibility = "signupLink")
-    private WebElement signUpLink;
-
-    /**
-     * App logo/title
-     */
-    @AndroidFindBy(id = "com.example.sampleapp:id/appLogo")
-    @iOSXCUITFindBy(accessibility = "appLogo")
+    @AndroidFindBy(xpath = "//android.widget.ImageView[contains(@content-desc, 'Swag')]")
+    @iOSXCUITFindBy(xpath = "//XCUIElementTypeImage[contains(@name, 'Swag')]")
     private WebElement appLogo;
 
     // ========== PAGE ACTIONS ==========
@@ -126,27 +113,6 @@ public class LoginPage extends BasePage {
         return clickLoginButton();
     }
 
-    /**
-     * Clicks forgot password link
-     *
-     * @return Current LoginPage instance
-     */
-    public LoginPage clickForgotPassword() {
-        logger.info("Clicking forgot password link");
-        click(forgotPasswordLink);
-        return this;
-    }
-
-    /**
-     * Clicks sign up link
-     *
-     * @return Current LoginPage instance
-     */
-    public LoginPage clickSignUp() {
-        logger.info("Clicking sign up link");
-        click(signUpLink);
-        return this;
-    }
 
     // ========== VALIDATION METHODS ==========
 
@@ -157,7 +123,21 @@ public class LoginPage extends BasePage {
      */
     public boolean isLoginPageDisplayed() {
         logger.info("Verifying login page is displayed");
-        return isElementDisplayed(appLogo);
+        try {
+            // Wait for app logo to be visible (more reliable)
+            waitForElementToBeVisible(appLogo, 20);
+            return true;
+        } catch (Exception e) {
+            logger.warn("App logo not found, checking for username field instead");
+            // Fallback: Check if username field is displayed
+            try {
+                waitForElementToBeVisible(usernameField, 10);
+                return true;
+            } catch (Exception ex) {
+                logger.error("Login page elements not found: {}", ex.getMessage());
+                return false;
+            }
+        }
     }
 
     /**
@@ -252,6 +232,19 @@ public class LoginPage extends BasePage {
         logger.info("Clearing login fields");
         clearUsername();
         clearPassword();
+        return this;
+    }
+
+    /**
+     * Clicks forgot password link
+     * Note: This is a placeholder - update with actual app locator if available
+     *
+     * @return LoginPage instance
+     */
+    public LoginPage clickForgotPassword() {
+        logger.info("Clicking forgot password link");
+        // Placeholder: Sauce Labs demo app may not have forgot password
+        logger.warn("Forgot password functionality not available in this app");
         return this;
     }
 }

@@ -39,31 +39,17 @@
                 </methods>
             </class>
 
-            <!-- Navigation Tests -->
-            <class name="com.mobile.tests.NavigationTest">
+            <!-- Product Tests -->
+            <class name="com.mobile.tests.ProductTest">
                 <methods>
-                    <include name="testTabNavigation"/>
-                    <include name="testMenuNavigation"/>
-                    <include name="testProfileNavigation"/>
-                    <include name="testSearchNavigation"/>
-                    <include name="testNotificationNavigation"/>
-                    <include name="testLogoutNavigation"/>
-                    <include name="testDeepNavigation"/>
-                    <include name="testHomePageLoaded"/>
-                </methods>
-            </class>
-
-            <!-- Form Tests -->
-            <class name="com.mobile.tests.FormTest">
-                <methods>
-                    <include name="testValidFormSubmission"/>
-                    <include name="testFormFieldValidation"/>
-                    <include name="testEmailValidation"/>
-                    <include name="testFormWithDataProvider"/>
-                    <include name="testFormCancel"/>
-                    <include name="testFormFieldsDisplayed"/>
-                    <include name="testCheckboxFunctionality"/>
-                    <include name="testMinimumRequiredFields"/>
+                    <include name="testProductsPageDisplay"/>
+                    <include name="testClickProduct"/>
+                    <include name="testMenuIcon"/>
+                    <include name="testCartIcon"/>
+                    <include name="testSortButton"/>
+                    <include name="testLogout"/>
+                    <include name="testMultipleProductClicks"/>
+                    <include name="testAllPageElements"/>
                 </methods>
             </class>
         </classes>
@@ -86,31 +72,17 @@
                 </methods>
             </class>
 
-            <!-- Navigation Tests -->
-            <class name="com.mobile.tests.NavigationTest">
+            <!-- Product Tests -->
+            <class name="com.mobile.tests.ProductTest">
                 <methods>
-                    <include name="testTabNavigation"/>
-                    <include name="testMenuNavigation"/>
-                    <include name="testProfileNavigation"/>
-                    <include name="testSearchNavigation"/>
-                    <include name="testNotificationNavigation"/>
-                    <include name="testLogoutNavigation"/>
-                    <include name="testDeepNavigation"/>
-                    <include name="testHomePageLoaded"/>
-                </methods>
-            </class>
-
-            <!-- Form Tests -->
-            <class name="com.mobile.tests.FormTest">
-                <methods>
-                    <include name="testValidFormSubmission"/>
-                    <include name="testFormFieldValidation"/>
-                    <include name="testEmailValidation"/>
-                    <include name="testFormWithDataProvider"/>
-                    <include name="testFormCancel"/>
-                    <include name="testFormFieldsDisplayed"/>
-                    <include name="testCheckboxFunctionality"/>
-                    <include name="testMinimumRequiredFields"/>
+                    <include name="testProductsPageDisplay"/>
+                    <include name="testClickProduct"/>
+                    <include name="testMenuIcon"/>
+                    <include name="testCartIcon"/>
+                    <include name="testSortButton"/>
+                    <include name="testLogout"/>
+                    <include name="testMultipleProductClicks"/>
+                    <include name="testAllPageElements"/>
                 </methods>
             </class>
         </classes>
